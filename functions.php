@@ -17,8 +17,9 @@ function storefront_child_theme_enqueue_styles() {
 */
 function change_product_views_count( $id ){
 	
+	$uniqueSessionId = session_id();
 	
-	$_SESSION['user-have-watched'][$id] = get_current_user_id();
+	$_SESSION['user-have-watched'][$id] = $uniqueSessionId;
 	
 	$currentViews = 0;
 	if( get_post_meta( $id, 'product-views', true ) )
@@ -42,31 +43,23 @@ function change_product_views_count( $id ){
 add_action('wp_footer', 'change_views_count_action');
 function change_views_count_action(){
 	
-	if( is_user_logged_in() ){
+	$uniqueSessionId = session_id();
+	
 		if ( is_product() ){
 			
 			global $product;
 			$id = $product->get_id();
 			
 			//  check if USER WATCHED THIS PRODUCT
-			if( !isset( $_SESSION['user-have-watched'][$id] ) && $_SESSION['user-have-watched'][$id] !== get_current_user_id() ){
+			if( !isset( $_SESSION['user-have-watched'][$id] ) && $_SESSION['user-have-watched'][$id] !== $uniqueSessionId ){
 				change_product_views_count( $id );
 			}
 			
 			
 		}
-	}
 		
 }
 
-/*
- * DELETE SESSIONS ON logout
- * wp_logout action used
-*/
-function delete_views_count_sessions() {
-	unset(  $_SESSION['user-have-watched'] );
-}
-add_action( 'wp_logout', 'delete_views_count_sessions'  );
 
 /*
  * SAVE THE LAST TIME ORDERED THIS PRODUCT
